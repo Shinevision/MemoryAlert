@@ -12,7 +12,7 @@ namespace MemoryAlert
 {
     public partial class SettingsForm : Form
     {
-        public SettingsForm()
+        public SettingsForm() // Test Message for git push test :P
         {
             InitializeComponent();
             memoryLimitToolTip.SetToolTip(memoryLimitLabel, "If your memory exceedes this amount (in %) it will warn you.");
