@@ -56,9 +56,9 @@ namespace MemoryAlert
                 Directory.CreateDirectory(finalPath);
 
             string debugMessage = string.Format("Savepath: {0},\n saveDirectory: {1},\n fileName: {2},\n fullPath: {3}", savePath, saveDirectory, fileName, finalPath);
-            MessageBox.Show(debugMessage);
+            //MessageBox.Show(debugMessage);
             File.WriteAllText(finalPath + "\\" + fileName, rawJSON);
-            MessageBox.Show(fileName + " file written to:\n" + finalPath + "\\" + fileName);
+            //MessageBox.Show(fileName + " file written to:\n" + finalPath + "\\" + fileName);
         }
 
         public void LoadSettings()
@@ -89,7 +89,7 @@ namespace MemoryAlert
             }
 
             Settings.settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(loadPath));
-            MessageBox.Show("Loaded from:\n" + loadPath);
+            //MessageBox.Show("Loaded from:\n" + loadPath);
         }
 
         private void MemoryAlert_Load(object sender, EventArgs e)
