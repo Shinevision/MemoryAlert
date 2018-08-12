@@ -59,14 +59,5 @@ namespace MemoryAlert.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 0.
-        /// </summary>
-        internal static string saveLocally {
-            get {
-                return ResourceManager.GetString("saveLocally", resourceCulture);
-            }
-        }
     }
 }
