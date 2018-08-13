@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
             this.memoryLimitLabel = new System.Windows.Forms.Label();
             this.memoryLimitToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.memoryLimitTextbox = new System.Windows.Forms.TextBox();
@@ -132,6 +133,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.memoryLimitTextbox);
             this.Controls.Add(this.memoryLimitLabel);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "SettingsForm";
             this.Text = "Settings";
             this.ResumeLayout(false);
