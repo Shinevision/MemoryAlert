@@ -16,14 +16,14 @@ namespace MemoryAlert
 {
     public partial class MemoryAlert : Form
     {
-        public static string version = "1.1.2";
+        public static string version = "1.1.4";
 
         static string saveDirectory = "MemoryAlert";
         static string fileName = "Settings.json";
 
         SettingsForm settingsForm;
 
-        System.Windows.Forms.Timer getDataTimer;
+        Timer getDataTimer;
 
         Button resetTriggerButton;
 
@@ -40,7 +40,7 @@ namespace MemoryAlert
         {
             LoadSettings();
             Text += " " + version;
-            getDataTimer = new System.Windows.Forms.Timer();
+            getDataTimer = new Timer();
             getDataTimer.Interval = Settings.settings.updateInterval;
             getDataTimer.Tick += new EventHandler(MainCheckLoop);
             getDataTimer.Enabled = true;
@@ -51,17 +51,24 @@ namespace MemoryAlert
         public static void SaveSettings()
         {
             string rawJSON = JsonConvert.SerializeObject(Settings.settings);
-            string savePath;
+            string savePath; // change this so it doesnt hoist.
             string finalPath = "";
 
             if (!Settings.settings.saveSettingsLocally)
+            {
                 savePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToString() + "\\";
+            }
             else
+            {
                 savePath = AppDomain.CurrentDomain.BaseDirectory.ToString();
+            }
 
             finalPath = savePath + saveDirectory;
+
             if (!Directory.Exists(finalPath))
+            {
                 Directory.CreateDirectory(finalPath);
+            }
 
             string debugMessage = string.Format("Savepath: {0},\n saveDirectory: {1},\n fileName: {2},\n fullPath: {3}", savePath, saveDirectory, fileName, finalPath);
             //MessageBox.Show(debugMessage);
@@ -73,20 +80,31 @@ namespace MemoryAlert
         {
             string loadPath;
             string[] allPaths = { Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToString() + "\\", AppDomain.CurrentDomain.BaseDirectory.ToString() };
+            // Map over the directories instead.
 
             if (!File.Exists(allPaths[1] + saveDirectory + "\\" + fileName))
+            {
                 loadPath = allPaths[0];
+            }
 
             if (!File.Exists(allPaths[0] + saveDirectory + "\\" + fileName))
+            {
                 loadPath = allPaths[1];
+            }
 
             if (!File.Exists(allPaths[1] + saveDirectory + "\\" + fileName) && !File.Exists(allPaths[0] + saveDirectory + "\\" + fileName))
+            {
                 return;
+            }
 
             if (File.GetLastWriteTime(allPaths[1] + saveDirectory + "\\" + fileName) > File.GetLastWriteTime(allPaths[0] + saveDirectory + "\\" + fileName))
+            {
                 loadPath = allPaths[1];
+            }
             else
+            {
                 loadPath = allPaths[0];
+            }
 
             loadPath += saveDirectory + "\\" + fileName;
 
@@ -132,7 +150,7 @@ namespace MemoryAlert
                 if (mBAnswer == DialogResult.Yes) // save
                     SaveSettings();
             }*/
-            Environment.Exit(0);
+            Environment.Exit(0); // Change this to the from close instead.
         }
 
         [DllImport("kernel32.dll")]
