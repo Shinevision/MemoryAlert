@@ -56,7 +56,7 @@ namespace MemoryAlert
         private void saveSettingsButton_Click(object sender, EventArgs e)
         {
             MemoryAlert.SaveSettings();
-            Close();
+            Hide();
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -74,6 +74,13 @@ namespace MemoryAlert
                 updateIntervalTextbox.Text = updateIntervalTextbox.Text.Remove(updateIntervalTextbox.Text.Trim().Length - 1);
                 updateIntervalTextbox.SelectionStart = updateIntervalTextbox.Text.Trim().Length;
             }
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e) //Override standard X Closing button to hide instead of destroying the object.
+        {
+            Visible = false;
+            Hide();
+            e.Cancel = true;
         }
     }
 

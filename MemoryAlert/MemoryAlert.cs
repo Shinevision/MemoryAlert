@@ -23,6 +23,12 @@ namespace MemoryAlert
 
         SettingsForm settingsForm;
 
+        System.Windows.Forms.Timer getDataTimer;
+
+        Button resetTriggerButton;
+
+        public bool reTrigger = true;
+
         public MemoryAlert()
         {
             InitializeComponent();
@@ -32,12 +38,12 @@ namespace MemoryAlert
         public void SetupForm()
         {
             LoadSettings();
-            SetMemoryProc("", EventArgs.Empty); // Run it once so it doesnt show the default that doesnt have a value.
             Text += " " + version;
-            System.Windows.Forms.Timer getDataTimer = new System.Windows.Forms.Timer();
+            getDataTimer = new System.Windows.Forms.Timer();
             getDataTimer.Interval = Settings.settings.updateInterval;
-            getDataTimer.Tick += new EventHandler(SetMemoryProc);
+            getDataTimer.Tick += new EventHandler(MainCheckLoop);
             getDataTimer.Enabled = true;
+            MainCheckLoop("", EventArgs.Empty); // Run it once so it doesnt show the default that doesnt have a value.
         }
 
         public static void SaveSettings()
@@ -130,7 +136,7 @@ namespace MemoryAlert
 
         }
 
-        public void SetMemoryProc(object sender, EventArgs e)
+        public void MainCheckLoop(object sender, EventArgs e)
         {
             PerformanceCounter performanceCounterUsed = new PerformanceCounter();
             performanceCounterUsed.CategoryName = "Memory";
@@ -145,6 +151,35 @@ namespace MemoryAlert
 
             //performanceCounter.InstanceName = "_Total";
             memoryUsageLabel.Text = "Memory usage: " + memProc.ToString() + "%";
+
+            if (memProc > Settings.settings.maxMemory && reTrigger && this.Visible)
+            {
+                getDataTimer.Stop(); //Stop the timer executing this code.
+                MessageBox.Show("Memory above " + Settings.settings.maxMemory + "%\n\nMemoryAlert won't show you this again\nbefore it has be reset.\nopen MemoryAlert to reset the trigger.", "Warning", MessageBoxButtons.OK);
+                getDataTimer.Start(); //Resume the code after the user hits "OK".
+                reTrigger = false;
+                //if(this.foir)
+                resetTriggerButton = new Button();
+                resetTriggerButton.Text = "Reset trigger";
+                resetTriggerButton.Size = new Size(100, 50);
+                int buttonOffset = 10;
+                resetTriggerButton.Left = ((this.ClientSize.Width - resetTriggerButton.Width) / 1) - buttonOffset;
+                resetTriggerButton.Top = ((this.ClientSize.Height - resetTriggerButton.Height) / 1) - buttonOffset;
+                resetTriggerButton.Anchor = AnchorStyles.None;
+                resetTriggerButton.Click += new EventHandler(ResetTrigger);
+                //button.Size = new Size(100, 25);
+                Controls.Add(resetTriggerButton);
+
+                //button.Show();
+            }
+        }
+
+        public void ResetTrigger(object sender, EventArgs e)
+        {
+            reTrigger = true;
+            Button b = (Button)sender;
+            Controls.Remove(b);
+            b.Dispose();
         }
     }
 }
