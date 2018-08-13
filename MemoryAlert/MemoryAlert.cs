@@ -16,7 +16,7 @@ namespace MemoryAlert
 {
     public partial class MemoryAlert : Form
     {
-        public string version = "1.0.2";
+        public static string version = "1.1.2";
 
         static string saveDirectory = "MemoryAlert";
         static string fileName = "Settings.json";
@@ -33,6 +33,7 @@ namespace MemoryAlert
         {
             InitializeComponent();
             SetupForm();
+            reTrigger = true;
         }
 
         public void SetupForm()
@@ -44,6 +45,7 @@ namespace MemoryAlert
             getDataTimer.Tick += new EventHandler(MainCheckLoop);
             getDataTimer.Enabled = true;
             MainCheckLoop("", EventArgs.Empty); // Run it once so it doesnt show the default that doesnt have a value.
+            mainNotifyIcon.Text = "MemoryAlert " + version;
         }
 
         public static void SaveSettings()
@@ -111,20 +113,26 @@ namespace MemoryAlert
             settingsForm.Show();
         }
 
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)// ABOUT CLICK
         {
-
+            About about = new About();
+            about.Show();
         }
 
-        private void exitToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void exitToolStripMenuItem1_Click(object sender, EventArgs e) // EXIT CLICK
         {
-            if (Settings.settings != new Settings()) // Check if user has unsaved settings.
+            OnApplicationExit();
+        }
+
+        public void OnApplicationExit()
+        {
+            /*if (Settings.settings != new Settings) // Check if user has unsaved settings.
             {
-                DialogResult mBAnswer =  MessageBox.Show("There are unsaved settings, Do you want to save?","Caption", MessageBoxButtons.YesNo);
+                DialogResult mBAnswer = MessageBox.Show("There are unsaved settings, Do you want to save?", "Caption", MessageBoxButtons.YesNo);
                 if (mBAnswer == DialogResult.Yes) // save
                     SaveSettings();
-            }
-            Application.Exit();
+            }*/
+            Environment.Exit(0);
         }
 
         [DllImport("kernel32.dll")]
@@ -152,24 +160,32 @@ namespace MemoryAlert
             //performanceCounter.InstanceName = "_Total";
             memoryUsageLabel.Text = "Memory usage: " + memProc.ToString() + "%";
 
-            if (memProc > Settings.settings.maxMemory && reTrigger && this.Visible)
+            if (Visible && resetTriggerButton == null)
+            {
+                reTrigger = true;
+            }
+
+            if (memProc > Settings.settings.maxMemory && reTrigger)
             {
                 getDataTimer.Stop(); //Stop the timer executing this code.
                 MessageBox.Show("Memory above " + Settings.settings.maxMemory + "%\n\nMemoryAlert won't show you this again\nbefore it has be reset.\nopen MemoryAlert to reset the trigger.", "Warning", MessageBoxButtons.OK);
                 getDataTimer.Start(); //Resume the code after the user hits "OK".
-                reTrigger = false;
                 //if(this.foir)
-                resetTriggerButton = new Button();
-                resetTriggerButton.Text = "Reset trigger";
-                resetTriggerButton.Size = new Size(100, 50);
-                int buttonOffset = 10;
-                resetTriggerButton.Left = ((this.ClientSize.Width - resetTriggerButton.Width) / 1) - buttonOffset;
-                resetTriggerButton.Top = ((this.ClientSize.Height - resetTriggerButton.Height) / 1) - buttonOffset;
-                resetTriggerButton.Anchor = AnchorStyles.None;
-                resetTriggerButton.Click += new EventHandler(ResetTrigger);
-                //button.Size = new Size(100, 25);
-                Controls.Add(resetTriggerButton);
-
+                if (Visible)
+                {
+                    reTrigger = false;
+                    resetTriggerButton = new Button();
+                    resetTriggerButton.Text = "Reset trigger";
+                    resetTriggerButton.Size = new Size(100, 50);
+                    int buttonOffset = 10;
+                    resetTriggerButton.Left = ((this.ClientSize.Width - resetTriggerButton.Width) / 1) - buttonOffset;
+                    resetTriggerButton.Top = ((this.ClientSize.Height - resetTriggerButton.Height) / 1) - buttonOffset;
+                    resetTriggerButton.Anchor = AnchorStyles.None;
+                    resetTriggerButton.Click += new EventHandler(ResetTrigger);
+                    //button.Size = new Size(100, 25);
+                    Controls.Add(resetTriggerButton);
+                }
+                reTrigger = false;
                 //button.Show();
             }
         }
@@ -177,9 +193,49 @@ namespace MemoryAlert
         public void ResetTrigger(object sender, EventArgs e)
         {
             reTrigger = true;
-            Button b = (Button)sender;
-            Controls.Remove(b);
-            b.Dispose();
+            Controls.Remove(resetTriggerButton);
+            resetTriggerButton.Dispose();
+            resetTriggerButton = null;
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            this.Visible = false;
+            this.Hide();
+            mainNotifyIcon.Visible = true;
+        }
+
+        private void mainNotifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            menuStripTray.Show();
+            menuStripTray.Left = System.Windows.Forms.Cursor.Position.X;
+            menuStripTray.Top = System.Windows.Forms.Cursor.Position.Y;
+        }
+
+        private void menuStripTray_Opening(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void Open_Click(object sender, EventArgs e)
+        {
+            this.Visible = true;
+            this.Show();
+
+            if (reTrigger && resetTriggerButton != new Button())
+                reTrigger = true;
+        }
+
+        private void Exit_Click(object sender, EventArgs e)
+        {
+            OnApplicationExit();
+        }
+
+        private void resetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //TODO: Fix the bug where it doesnt remove the Reset button on the form while you reset it using
+            reTrigger = true;
         }
     }
 }
