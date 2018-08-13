@@ -16,7 +16,7 @@ namespace MemoryAlert
 {
     public partial class MemoryAlert : Form
     {
-        public string version = "0.0.1";
+        public string version = "1.0.1";
 
         static string saveDirectory = "MemoryAlert";
         static string fileName = "Settings.json";
